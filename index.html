@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Center Cooling Pump Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Header -->
+  <header class="topbar">
+    <button class="icon-button menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+
+    <div class="brand-icon">▦</div>
+    <div class="brand-text">
+      <h1>Data Center Cooling Pump</h1>
+      <p>Temperature Monitoring and Sensor Failure Detection System</p>
+    </div>
+
+    <div class="topbar-right">
+      <div class="date-time" id="dateTime">Loading date...</div>
+
+      <div class="dropdown-wrap">
+        <button class="top-action" id="notificationButton" aria-label="Notifications">
+          <span class="bell-icon">♟</span>
+          <span class="notification-count" id="notificationCount">2</span>
+        </button>
+        <div class="dropdown notification-menu" id="notificationMenu">
+          <h3>Notifications</h3>
+          <p class="notification-item"><span class="red-dot"></span> High temperature alert detected.</p>
+          <p class="notification-item"><span class="red-dot"></span> Pump 2 sensor has no data.</p>
+          <button class="small-button" id="clearNotifications">Clear notifications</button>
+        </div>
+      </div>
+
+      <div class="dropdown-wrap">
+        <button class="profile-button" id="profileButton">
+          <span class="avatar">●</span>
+          <span>Operator</span>
+          <span>⌄</span>
+        </button>
+        <div class="dropdown profile-menu" id="profileMenu">
+          <h3>Operator Profile</h3>
+          <p><strong>Role:</strong> System Operator</p>
+          <p><strong>Access:</strong> Monitoring</p>
+          <button class="small-button" id="profileDetailsButton">View profile</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="side-nav">
+        <a class="nav-link active" href="#dashboard" data-section="dashboard">
+          <span class="nav-icon">⌂</span><span class="nav-label">Home</span>
+        </a>
+        <a class="nav-link" href="#temperature" data-section="temperature">
+          <span class="nav-icon">♨</span><span class="nav-label">Temperature</span>
+        </a>
+        <a class="nav-link" href="#sensor-status" data-section="sensor-status">
+          <span class="nav-icon">▦</span><span class="nav-label">Sensor Status</span>
+        </a>
+        <a class="nav-link" href="#pump-overview" data-section="pump-overview">
+          <span class="nav-icon">⚙</span><span class="nav-label">Pump Status</span>
+        </a>
+        <a class="nav-link" href="#temperature" data-section="temperature">
+          <span class="nav-icon">⌁</span><span class="nav-label">Trends</span>
+        </a>
+        <a class="nav-link" href="#active-alarms" data-section="active-alarms">
+          <span class="nav-icon">♟</span><span class="nav-label">Active Alarms</span>
+        </a>
+        <a class="nav-link" href="#alarm-history" data-section="alarm-history">
+          <span class="nav-icon">◷</span><span class="nav-label">Alarm History</span>
+        </a>
+        <a class="nav-link" href="#reports" data-section="reports">
+          <span class="nav-icon">▤</span><span class="nav-label">Reports</span>
+        </a>
+        <a class="nav-link" href="#settings" data-section="settings">
+          <span class="nav-icon">⚙</span><span class="nav-label">Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="dashboard">
+      <section class="page-heading">
+        <div>
+          <h2>Home Dashboard</h2>
+          <p>Overview of cooling pump temperature, sensor status and alarms</p>
+        </div>
+        <div class="heading-controls">
+          <span class="connection-badge"><span class="wifi-symbol">⌁</span> Connected</span>
+          <label for="pumpSelect">Select Pump:</label>
+          <select id="pumpSelect">
+            <option value="Pump 1">Pump 1</option>
+            <option value="Pump 2">Pump 2</option>
+            <option value="Pump 3">Pump 3</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="summary-grid">
+        <article class="summary-card green-card" id="temperature-card">
+          <div class="summary-icon thermometer">♨</div>
+          <div class="summary-content">
+            <h3>Current Temperature</h3>
+            <div class="metric" id="currentTemperature">8.5 °C</div>
+            <span class="status-pill green-pill"><span>✓</span><span id="temperatureState">Normal</span></span>
+          </div>
+        </article>
+
+        <article class="summary-card green-card">
+          <div class="summary-icon chip-icon">▦</div>
+          <div class="summary-content">
+            <h3>Sensor Status</h3>
+            <div class="metric metric-text" id="sensorSummary">Working</div>
+            <span class="status-pill green-pill"><span>✓</span>Healthy</span>
+          </div>
+        </article>
+
+        <article class="summary-card green-card">
+          <div class="summary-icon pump-icon">▣</div>
+          <div class="summary-content">
+            <h3>Pump Status</h3>
+            <div class="metric metric-text" id="pumpSummary">Running</div>
+            <span class="status-pill green-pill"><span>✓</span>ON</span>
+          </div>
+        </article>
+
+        <article class="summary-card red-card">
+          <div class="summary-icon alarm-icon">♟</div>
+          <div class="summary-content">
+            <h3>Active Alarms</h3>
+            <div class="metric" id="activeAlarmCount">2</div>
+            <span class="status-pill red-pill"><span>!</span><span id="activeAlarmText">2 Active</span></span>
+          </div>
+        </article>
+      </section>
+
+      <!-- Trend and Pump Overview -->
+      <section class="two-column-grid">
+        <article class="panel trend-panel" id="temperature">
+          <div class="panel-heading">
+            <h2><span class="heading-icon blue">⌁</span> Temperature Trend (Last 24 Hours)</h2>
+          </div>
+          <div class="chart-legend">
+            <span><i class="legend-line blue-line"></i>Temperature (°C)</span>
+            <span><i class="legend-line red-line"></i>High Temperature Limit (12°C)</span>
+            <span><i class="legend-line green-line"></i>Low Temperature Limit (4°C)</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="temperatureChart" aria-label="Temperature trend chart"></canvas>
+          </div>
+        </article>
+
+        <article class="panel pump-panel" id="pump-overview">
+          <div class="panel-heading">
+            <h2><span class="heading-icon">▣</span> Pump Overview</h2>
+          </div>
+          <div class="pump-overview-content">
+            <div class="pump-illustration" aria-label="Cooling pump illustration">
+              <svg viewBox="0 0 300 220" role="img" aria-label="Blue industrial water pump">
+                <defs>
+                  <linearGradient id="pumpBlue" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0" stop-color="#77c6ff"/>
+                    <stop offset="0.45" stop-color="#1674d2"/>
+                    <stop offset="1" stop-color="#06417f"/>
+                  </linearGradient>
+                  <linearGradient id="metal" x1="0" x2="1">
+                    <stop offset="0" stop-color="#dce7ef"/>
+                    <stop offset="0.5" stop-color="#7e94a6"/>
+                    <stop offset="1" stop-color="#f5f9fc"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="150" cy="190" rx="118" ry="13" fill="#d7e2ed"/>
+                <path d="M49 164 L236 164 L260 180 L63 180 Z" fill="#0756a3"/>
+                <rect x="64" y="151" width="176" height="22" rx="5" fill="#1674d2"/>
+                <rect x="82" y="160" width="16" height="16" fill="#073d77"/>
+                <rect x="212" y="160" width="16" height="16" fill="#073d77"/>
+                <path d="M90 75 Q90 48 122 48 L175 48 Q205 48 209 78 L214 126 Q214 150 187 153 L118 153 Q88 150 88 125 Z" fill="url(#pumpBlue)" stroke="#06417f" stroke-width="3"/>
+                <ellipse cx="90" cy="105" rx="31" ry="40" fill="url(#metal)" stroke="#536b7e" stroke-width="4"/>
+                <ellipse cx="90" cy="105" rx="20" ry="28" fill="#1d70b9" stroke="#dce7ef" stroke-width="4"/>
+                <ellipse cx="90" cy="105" rx="8" ry="12" fill="#c9d8e4"/>
+                <path d="M117 62 Q147 43 174 62 L189 84 L189 125 Q172 145 137 137 L117 120 Z" fill="#2387e5" opacity=".9"/>
+                <rect x="145" y="31" width="52" height="25" rx="5" fill="#0a4c91"/>
+                <rect x="154" y="18" width="35" height="18" rx="4" fill="#2e91ed"/>
+                <rect x="166" y="5" width="12" height="18" fill="#0756a3"/>
+                <rect x="193" y="80" width="40" height="24" rx="4" fill="#06417f"/>
+                <rect x="207" y="87" width="30" height="10" fill="#2c92e7"/>
+                <path d="M230 79 L252 79 L252 105 L230 105 Z" fill="url(#metal)" stroke="#627d90" stroke-width="3"/>
+                <path d="M131 149 L131 165 M178 149 L178 165" stroke="#063c70" stroke-width="6"/>
+                <path d="M118 74 Q140 62 159 72" stroke="#a4dcff" stroke-width="4" fill="none" opacity=".8"/>
+              </svg>
+            </div>
+            <table class="details-table">
+              <tbody>
+                <tr><th>Pump ID</th><td id="pumpId">PUMP-01</td></tr>
+                <tr><th>Location</th><td>Data Center - Chiller Room</td></tr>
+                <tr><th>Type</th><td>Cooling Water Pump</td></tr>
+                <tr><th>Rated Capacity</th><td>500 m³/hr</td></tr>
+                <tr><th>Status</th><td><span class="green-dot"></span><span id="pumpDetailStatus">Running</span></td></tr>
+                <tr><th>Inlet Temp.</th><td id="inletTemperature">8.5 °C</td></tr>
+                <tr><th>Outlet Temp.</th><td id="outletTemperature">10.2 °C</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- Alarm and Sensor Tables -->
+      <section class="two-column-grid lower-grid">
+        <article class="panel alarms-panel" id="active-alarms">
+          <div class="panel-heading">
+            <h2><span class="heading-icon red">♟</span> Active Alarms</h2>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table" id="alarmTable">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Pump</th><th>Alarm Type</th><th>Message</th>
+                  <th>Severity</th><th>Status</th><th>Acknowledge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-alarm="1">
+                  <td>10:20:15</td><td>Pump 1</td><td class="text-red">High Temperature</td>
+                  <td>Temperature exceeded 12°C</td><td class="text-red">▲ High</td>
+                  <td><span class="table-status status-active">Active</span></td>
+                  <td><button class="acknowledge-button">Acknowledge</button></td>
+                </tr>
+                <tr data-alarm="2">
+                  <td>09:45:32</td><td>Pump 2</td><td class="text-red">Sensor No Data</td>
+                  <td>No data received from sensor</td><td class="text-red">▲ High</td>
+                  <td><span class="table-status status-active">Active</span></td>
+                  <td><button class="acknowledge-button">Acknowledge</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel sensor-panel" id="sensor-status">
+          <div class="panel-heading">
+            <h2><span class="heading-icon">▦</span> Sensor Status</h2>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table sensor-table">
+              <thead><tr><th>Sensor</th><th>Current Reading</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Temp Sensor 1 (Primary)</td><td id="sensorReading1">8.5 °C</td><td><span class="green-dot"></span>Healthy</td></tr>
+                <tr><td>Temp Sensor 2 (Backup)</td><td id="sensorReading2">8.6 °C</td><td><span class="green-dot"></span>Healthy</td></tr>
+                <tr><td>Sensor Communication</td><td>Connected</td><td><span class="green-dot"></span>OK</td></tr>
+                <tr><td>Last Data Received</td><td id="lastReceived">12 Sep 2026 10:24:36</td><td><span class="green-dot"></span>Live</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- Historical Data -->
+      <section class="panel history-panel" id="alarm-history">
+        <div class="history-heading">
+          <div class="panel-heading">
+            <h2><span class="heading-icon">▤</span> Historical Data</h2>
+          </div>
+          <div class="history-controls">
+            <label for="historyDate">Select Date:</label>
+            <input type="date" id="historyDate" />
+            <label for="timeRange">Time Range:</label>
+            <select id="timeRange">
+              <option value="24">Last 24 Hours</option>
+              <option value="12">Last 12 Hours</option>
+              <option value="6">Last 6 Hours</option>
+              <option value="1">Last 1 Hour</option>
+            </select>
+            <button class="export-button" id="exportButton">⬇ Export</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table history-table">
+            <thead>
+              <tr><th>Timestamp</th><th>Pump</th><th>Temperature (°C)</th><th>Pump Status</th><th>Sensor Status</th></tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Reports -->
+      <section class="panel extra-panel" id="reports">
+        <div class="panel-heading"><h2><span class="heading-icon">▤</span> Reports</h2></div>
+        <p>Use the Export button in Historical Data to download temperature readings as a CSV file.</p>
+        <button class="export-button" id="reportExportButton">⬇ Export Temperature Report</button>
+      </section>
+
+      <!-- Settings -->
+      <section class="panel extra-panel" id="settings">
+        <div class="panel-heading"><h2><span class="heading-icon">⚙</span> Settings</h2></div>
+        <div class="settings-grid">
+          <label>High temperature limit (°C)
+            <input type="number" id="highLimitInput" min="1" max="50" value="12" />
+          </label>
+          <label>Low temperature limit (°C)
+            <input type="number" id="lowLimitInput" min="0" max="49" value="4" />
+          </label>
+          <button class="export-button" id="saveSettingsButton">Save Settings</button>
+        </div>
+        <p class="settings-note">Demo settings only. Actual pump alarm limits must follow the equipment manufacturer's specifications.</p>
+      </section>
+
+      <footer class="footer">Data Center Cooling Pump Monitoring System · Demo Dashboard</footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
